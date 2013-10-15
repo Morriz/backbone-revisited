@@ -29,5 +29,8 @@
     "name": "Maurice Faber",
     "email": "morriz@idiotz.nl",
     "url": "http://www.idiotz.nl"
+  },
+  "scripts": {
+    "postinstall": "sh bin/postinstall.sh"
   }
 }

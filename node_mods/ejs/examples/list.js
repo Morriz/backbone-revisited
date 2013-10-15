@@ -3,7 +3,7 @@
  * Module dependencies.
  */
 
-var ejs = require('../')
+var ejs = require('.')
   , fs = require('fs')
   , str = fs.readFileSync(__dirname + '/list.ejs', 'utf8');
 
