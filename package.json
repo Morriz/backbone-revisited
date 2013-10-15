@@ -1,18 +1,16 @@
 {
   "name": "backbone-revisited",
   "description": "Persistant backbone server/client MVC with rest backend",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "homepage": "https://github.com/morriz/backbone-revisited",
   "repository": {
     "type": "git",
     "url": "git://github.com/morriz/backbone-revisited.git"
   },
   "dependencies": {
-    "backbone": "x.x.x",
     "browserify": "x.x.x",
     "cheerio": "x.x.x",
     "connect-gzip": "x.x.x",
-    "ejs": "x.x.x",
     "ejsify": "x.x.x",
     "express": "x.x.x",
     "jquery": "x.x.x",
