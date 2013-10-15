@@ -1,4 +1,4 @@
-# Songlist, based upon the Todo app by Jeremy Ashkenase.
+# Backbone revisited
 
 
 ## Technologies
@@ -60,6 +60,8 @@ Then open this link in your browser:
 ### Some hacking was necessary
 
 But the hacking was very minimal this time.
+
+jQuery was made global on the server, and loaded from cdn on the client.
 
 I added " … || $" to the "Backbone.$ = … " line (line 46) to make cheerio's $ available on the server.
 (Again, I added node_modules/backbone to git to make it work out of the box.)

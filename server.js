@@ -65,7 +65,6 @@ app.all('*', function (req, res, next) {
         cheerio: cheerio,
         layout: layout,
         route: route,
-//        ifServerSendFullHtmlToClient: ifServerSendFullHtmlToClient,
         next: next
       }
     ;
