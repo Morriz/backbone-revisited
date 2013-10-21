@@ -1,7 +1,8 @@
-var _ = require('underscore');
-//var $ = require('jquery');
-var Backbone = require('../backbone-modified');
-var template = require('../templates/songlistItem.ejs');
+'use strict';
+var _ = require('underscore')
+  , Backbone = require('../backbone/backbone-modified')
+  , template = require('../templates/songlistItem.ejs')
+  ;
 
 module.exports = Backbone.AnywhereView.extend({
 
@@ -18,25 +19,28 @@ module.exports = Backbone.AnywhereView.extend({
   },
 
   // The SongView listens for changes to its model, re-rendering. Since
-  // there's
-  // a one-to-one correspondence between a **Song** and a **SongView** in this
+  // there's a one-to-one correspondence between a **Song** and a **SongView** in this
   // app, we set a direct reference on the model for convenience.
   initialize: function () {
     this.listenTo(this.model, 'change', this.render);
     this.listenTo(this.model, 'destroy', this.remove);
+    this._enrich();
     this.model.view = this;
   },
 
   // Render the contents of the song item.
   render: function () {
+    global.ONCLIENT && this.input.off('blur');
     this.$el.html(this.template(this.model.toJSON()));
     this._enrich();
     return this;
   },
 
   _enrich: function () {
-    this.input = this.$('.song-input');
-    ONCLIENT && this.listenTo(this.input, 'blur', this.close);
+    if (global.ONSERVER) {
+      return;
+    }
+    this.input = this.$('.song-input').on('blur', this.close.bind(this));
   },
 
   // Toggle the 'published' state of the model.
@@ -60,7 +64,9 @@ module.exports = Backbone.AnywhereView.extend({
 
   // If you hit enter, we're through editing the item.
   updateOnEnter: function (e) {
-    if (e.keyCode == 13) this.close();
+    if (e.keyCode === 13) {
+      this.close();
+    }
   },
 
   // Remove this view from the DOM.
@@ -69,7 +75,7 @@ module.exports = Backbone.AnywhereView.extend({
       return;
     }
     this.removing = true;
-    this.model.destroy()
+    this.model.destroy();
     Backbone.AnywhereView.prototype.remove.apply(this);
   },
 

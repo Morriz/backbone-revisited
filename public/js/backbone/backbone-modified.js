@@ -1,30 +1,37 @@
+'use strict';
 var _ = require('underscore')
-  , Backbone = require('backbone')
   , renderEngine = require('ejs')
+  , Backbone = require('backbone')
   ;
-// pull in the href listeners to enable handling of link clicking
-ONCLIENT && (require('./backbone-urlhandler'));
+// set globals because the authors never intended their stuff to be used with require on the client
+if (global.ONCLIENT) {
+  global._ = _;
+  global.Backbone = Backbone;
+};
 
-Backbone.LiveModel = Backbone.Model.extend({
+// pull in the href listeners to enable handling of link clicking
+global.ONCLIENT && (require('./backbone-urlhandler'));
+
+Backbone.AnywhereModel = Backbone.Model.extend({
 
   urlRoot: '/api/',
 
   url: function () {
-    var base = this.urlRoot + this.type;
+    var base = this.urlRoot + this.type + '/';
     if (this.isNew()) {
       return base;
     }
-    return base + (base.charAt(base.length - 1) === '/' ? '' : '/') + encodeURIComponent(this.id);
+    return base + encodeURIComponent(this.id);
   }
 
 });
 
-Backbone.LiveCollection = Backbone.Collection.extend({
+Backbone.AnywhereCollection = Backbone.Collection.extend({
 
   urlRoot: '/api/',
 
-  url: function () {
-    return this.urlRoot + this.type;
+  url: function (models) {
+    return this.urlRoot + this.type + ( models ? '/set/' + _.pluck(models, 'id').join(';') + '/' : '/' );
   },
 
   dateCreated: null, // is always set on server
@@ -46,7 +53,7 @@ Backbone.LiveCollection = Backbone.Collection.extend({
       limit: this.limit
     };
     // and call parent
-    Backbone.Collection.prototype.fetch.call(this, options);
+    return Backbone.Collection.prototype.fetch.call(this, options);
   },
 
   // items are sorted by our sortBy value
@@ -72,26 +79,6 @@ Backbone.LiveCollection = Backbone.Collection.extend({
         return 0xffff - c.charCodeAt();
       })
     );
-  },
-
-  // Prepare a model to be added to this collection
-  _prepareModel: function (model, options) {
-    if (!(model instanceof Backbone.Model)) {
-      var attrs = model;
-      model = new this.model(attrs, {collection: this});
-      if (model.validate && !model._performValidation(attrs, options)) {
-        model = false;
-      }
-    } else if (!model.collection) {
-      model.collection = this;
-    }
-    // adding functionality to map collection's extKey on model
-    if (this.extKey) {
-      model.set(this.extKey);
-    }
-    return model;
-  },
-  subscribe: function () {
   }
 });
 
@@ -106,7 +93,11 @@ Backbone.AnywhereView = Backbone.View.extend({
     // add in our special events
     this.events = this.events || {};
     _.extend(this.events, Backbone.View.prototype.events);
-    if (ONCLIENT) {
+    if (this.template) {
+      var data = (this.model && this.model.toJSON()) || (this.collection && this.collection.toJSON()) || {};
+      this.$el.html(this.template(data));
+    }
+    if (global.ONCLIENT) {
       this.delegateEvents();
     }
     this.initialize.apply(this, arguments);
@@ -127,13 +118,15 @@ Backbone.AnywhereView = Backbone.View.extend({
 Backbone.createViewCallback = function (view) {
   return function () {
     Backbone.onlyShowLayout(view);
-    ONSERVER && ifServerSendFullHtmlToClient();
+    if (global.ONSERVER) {
+      global.sendFullHtmlToClient();
+    }
   };
 };
 
 // func to toggle layout visibility
 Backbone.onlyShowLayout = function (layoutToShow) {
-  $('.layout:not(.fixed)').css('display', 'none');
+  global.$('.layout:not(.fixed)').css('display', 'none');
   layoutToShow.show();
 };
 

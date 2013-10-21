@@ -1,8 +1,10 @@
-var _ = require('underscore');
-//var $ = require('jquery');
-var Backbone = require('../backbone-modified');
-var TrackListView = require('./TrackListView');
-var template = require('../templates/song.ejs');
+'use strict';
+var _ = require('underscore')
+  , Backbone = require('../backbone/backbone-modified')
+  , models = require('../models/index')
+  , TrackListView = require('./TrackListView')
+  , template = require('../templates/song.ejs')
+  ;
 
 module.exports = Backbone.AnywhereView.extend({
 
@@ -15,54 +17,53 @@ module.exports = Backbone.AnywhereView.extend({
   // The DOM events specific to an item.
   events: {
     'dblclick div.content': 'edit',
-    'click span.destroy': 'clear'
-    //'keypress .input': 'updateOnEnter'
+    'click span.destroy': 'clear',
+    'blur .song-input': 'close'
+  },
+
+  initialize: function () {
+    this.initModel();
+    this.input = this.$('.song-input');
   },
 
   // The SongView listens for changes to its model, re-rendering. Since
-  // there's a one-to-one correspondence between a **Song** and a **SongView**
-  // in this
-  // app, we set a direct reference on the model for convenience.
-  initialize: function () {
-    this.initModel();
-    this.$el.html(this.template(this.model.toJSON()));
-    this._enrich();
-    this.initTracksView();
-    this.trigger('attach');
-  },
-
-  initModel: function (model) {
-    if (model === this.model) return this;
-    this.model = model || this.model;
-    this.listenTo(this.model, 'change', this.render);
+  // there's a one-to-one correspondence between a Song and a SongView
+  // in this app, we set a direct reference on the model for convenience.
+  initModel: function () {
     this.model.view = this;
+    this.collection = new models.TrackCollection(this.model.get('tracks'));
+    // keep ref for later
+    this.collection.songId = this.model.id;
+    this.listenTo(this.model, 'change', function() {
+      this.render();
+      this.collection.set(this.model.get('tracks'));
+    });
     this.render();
+    this.initTracksView();
   },
 
   initTracksView: function () {
     this.subViews.trackList = new TrackListView({
       el: '.tracklist-subview',
-      collection: this.model.get('tracks')
+      collection: this.collection
     });
   },
 
   // Re-render the contents of the song item.
   render: function () {
-    _.each(this.model.toJSON(), _.bind(function(val, prop) {
+    var self = this;
+    _.each(this.model.toJSON(), function (val, prop) {
       var isBool = _.isBoolean(val);
-      if (!isBool && val && typeof val === 'object') return;
+      if (!isBool && val && typeof val === 'object') {
+        return;
+      }
       if (isBool) {
         val = val ? 'yes' : 'no';
       }
-      this.$('span.' + prop).html(val+'');
-      this.$('input.' + prop).val(val+'');
-    }, this));
+      self.$('span.' + prop).html(val + '');
+      self.$('input.' + prop).val(val + '');
+    });
     return this;
-  },
-
-  _enrich: function () {
-    this.input = this.$('.song-input');
-    ONCLIENT && this.input.bind('blur', _.bind(this.close, this));
   },
 
   // Switch this view into 'editing' mode, displaying the input field.
@@ -81,7 +82,9 @@ module.exports = Backbone.AnywhereView.extend({
 
   // If you hit enter, we're through editing the item.
   updateOnEnter: function (e) {
-    if (e.keyCode == 13) this.close();
+    if (e.keyCode === 13) {
+      this.close();
+    }
   },
 
   // clear the model.

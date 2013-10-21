@@ -1,3 +1,8 @@
+'use strict';
+var _ = require('underscore')
+  , songsApi = require('./songs')
+  ;
+
 /**
  * TrackApi class deals with track persistence
  */
@@ -12,9 +17,31 @@ module.exports = {
    */
   find: function (id) {
     var track = this.tracks.filter(function (item) {
-      return item.id == id;
+      return item.id === id;
     })[0];
     return track;
+  },
+  /**
+   * Find tracks by reference key
+   * Param: id that should match the ref key
+   * Returns: the tracks where ref key corresponds to the specified id
+   */
+  findByRef: function (id, key) {
+    var tracks = this.tracks.filter(function (item) {
+      return item[key] === id;
+    });
+    return tracks;
+  },
+  /**
+   * Find a set of songs by id
+   * Param: ids of the songs to find
+   * Returns: the songs corresponding to the specified ids
+   */
+  filter: function (ids) {
+    var tracks = this.tracks.filter(function (item) {
+      return _.inArray(item.id, ids);
+    });
+    return tracks;
   },
   /**
    * Find the index of a track
@@ -24,7 +51,7 @@ module.exports = {
   findIndex: function (id) {
     var index = null;
     this.tracks.forEach(function (item, key) {
-      if (item.id == id) {
+      if (item.id === id) {
         index = key;
       }
     });
@@ -42,7 +69,7 @@ module.exports = {
    * Param: track the track to save
    */
   save: function (track) {
-    if (track.id == null || track.id == 0) {
+    if (track.id === null || track.id === 0) {
       track.id = this.nextId;
       this.tracks.push(track);
       this.nextId++;
@@ -58,8 +85,10 @@ module.exports = {
    */
   remove: function (id) {
     var index = this.findIndex(id);
-    if (index === null) return false;
+    if (index === null) {
+      return false;
+    }
     this.tracks.splice(index, 1);
     return true;
   }
-}
+};

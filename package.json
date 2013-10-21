@@ -8,18 +8,20 @@
     "url": "git://github.com/morriz/backbone-revisited.git"
   },
   "dependencies": {
+    "backbone": "x.x.x",
     "browserify": "x.x.x",
     "cheerio": "x.x.x",
-    "connect-gzip": "x.x.x",
+    "ejs": "x.x.x",
     "ejsify": "x.x.x",
     "express": "x.x.x",
-    "jquery": "x.x.x",
     "request": "x.x.x",
     "underscore": "x.x.x"
   },
   "keywords": [
+    "cheerio",
     "jquery",
     "backbone",
+    "serverside",
     "pushState"
   ],
   "engines": {

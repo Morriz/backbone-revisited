@@ -1,11 +1,11 @@
-var Backbone = require('../backbone-modified');
-var SongModel = require('./SongModel');
+'use strict';
+var Backbone = require('../backbone/backbone-modified')
+  , SongModel = require('./SongModel')
+  ;
 
-module.exports = Backbone.LiveCollection.extend({
+module.exports = Backbone.AnywhereCollection.extend({
 
   type: 'songs',
-
-  url: '/api/songs',
 
   model: SongModel,
 

@@ -4,14 +4,13 @@ LIB = __dirname + '/lib/';
 ONSERVER = true;
 ONCLIENT = !ONSERVER;
 
-
 // now load our special jquery first and make it global
 var fs = require('fs')
   , cheerio = require('cheerio')
   , layout = fs.readFileSync('./public/layout.html')
   , cache = {}
   ;
-global.$ = $ = jQuery = cheerio.load(layout);
+global.$ = cheerio.load(layout);
 
 // and continue with the rest
 var vm = require('vm')
@@ -46,17 +45,16 @@ app.use(express.errorHandler({
 
 app.all('*', function (req, res, next) {
 
-  ifServerSendFullHtmlToClient = function() {
+  global.sendFullHtmlToClient = function() {
     var html = $.html();
     html = html.substr(0, html.lastIndexOf('\n'));
 //    cache[route] = html;
     res.end(html);
     return;
-  }
+  };
 
   var route = req.url.substr(1)
     , sandbox = {
-        global: global,
         console: console,
         require: require,
         ROOT: ROOT,

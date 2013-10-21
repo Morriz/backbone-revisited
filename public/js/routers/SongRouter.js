@@ -1,7 +1,9 @@
-var _ = require('underscore');
-var views = require('../views/index');
-var models = require('../models/index');
-var Backbone = require('../backbone-modified');
+'use strict';
+var _ = require('underscore')
+  , views = require('../views/index')
+  , models = require('../models/index')
+  , Backbone = require('../backbone/backbone-modified')
+  ;
 
 module.exports = Backbone.Router.extend({
 
@@ -39,35 +41,20 @@ module.exports = Backbone.Router.extend({
 
   song: function (id) {
 
-    var self = this
-      , tracks
-      , viewCallback
-      ;
+    var viewCallback;
+
+    id = parseInt(id, 10);
 
     if (!this.songView) {
       // create model and view
-      tracks = new models.TrackCollection();
-      tracks.extKey = {
-        songId: id
-      }
-      this.songView = new views.Song({
-        model: new models.Song({
-          tracks: tracks
-        })
-      });
+      this.songView = new views.Song({model: new models.Song({id: id})});
     } else {
-      tracks = this.songView.model.get('tracks')
+      this.songView.model.set('id', id);
     }
-    this.songView.model.set('id', id);
     // get the data
     viewCallback = Backbone.createViewCallback(this.songView);
     this.songView.model.fetch({
-      success: function () {
-        tracks.fetch({
-          success: viewCallback,
-          error: viewCallback
-        });
-      },
+      success: viewCallback,
       error: viewCallback
     });
   }

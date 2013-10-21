@@ -1,15 +1,16 @@
-var Backbone = require('../backbone-modified');
+'use strict';
+var Backbone = require('../backbone/backbone-modified');
 
-module.exports = Backbone.LiveModel.extend({
+module.exports = Backbone.AnywhereModel.extend({
 
   type: 'songs',
 
   // Default attributes for the song.
   defaults: {
     id: null,
-    title: 'empty title...',
+    title: '',
     published: false,
-    authorId: null,
+    authorId: 1,
     groupId: 1
   },
 
@@ -27,6 +28,8 @@ module.exports = Backbone.LiveModel.extend({
   },
 
   _removeView: function () {
-    if (this.view && !this.view.removing) this.view.remove(false);
+    if (this.view && !this.view.removing) {
+      this.view.remove(false);
+    }
   }
 });

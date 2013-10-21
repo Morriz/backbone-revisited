@@ -1,7 +1,9 @@
-var _ = require('underscore');
-//var $ = require('jquery');
-var Backbone = require('../backbone-modified');
-var template = require('../templates/track.ejs');
+'use strict';
+var root = typeof window === 'undefined' ? global : window
+  , _ = require('underscore')
+  , Backbone = require('../backbone/backbone-modified')
+  , template = require('../templates/track.ejs')
+  ;
 
 module.exports = Backbone.AnywhereView.extend({
 
@@ -13,7 +15,7 @@ module.exports = Backbone.AnywhereView.extend({
   events: {
     'dblclick div.content': 'edit',
     'click span.destroy': 'clear',
-    'keypress .input': 'updateOnEnter'
+    'blur .track-input': 'close'
   },
 
   // The SongView listens for changes to its model, re-rendering. Since
@@ -22,26 +24,18 @@ module.exports = Backbone.AnywhereView.extend({
   // app, we set a direct reference on the model for convenience.
   initialize: function () {
     this.initModel();
-    this.trigger('attach');
   },
 
-  initModel: function (model) {
-    this.model = model || this.model;
+  initModel: function () {
     this.listenTo(this.model, 'change', this.render);
     this.model.view = this;
     this.render();
   },
 
-  // Re-render the contents of the song item.
+  // Re-render the contents of the track item.
   render: function () {
     this.$el.html(this.template(this.model.toJSON()));
-    this._enrich();
     return this;
-  },
-
-  _enrich: function () {
-    this.input = this.$('.song-input');
-    ONCLIENT && this.listenTo(this.input, 'blur', this.close);
   },
 
   // Switch this view into 'editing' mode, displaying the input field.
@@ -60,7 +54,9 @@ module.exports = Backbone.AnywhereView.extend({
 
   // If you hit enter, we're through editing the item.
   updateOnEnter: function (e) {
-    if (e.keyCode == 13) this.close();
+    if (e.keyCode === 13) {
+      this.close();
+    }
   },
 
   // clear the model.

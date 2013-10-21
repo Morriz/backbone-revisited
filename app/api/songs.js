@@ -1,3 +1,8 @@
+'use strict';
+var _ = require('underscore')
+  , tracksApi = require('./tracks')
+  ;
+
 /**
  * SongApi class deals with song persistence
  */
@@ -12,9 +17,23 @@ module.exports = {
    */
   find: function (id) {
     var song = this.songs.filter(function (item) {
-      return item.id == id;
+      return item.id === id;
     })[0];
+    if (song) {
+      song.tracks = tracksApi.findByRef(song.id, 'songId');
+    }
     return song;
+  },
+  /**
+   * Find a set of songs by id
+   * Param: ids of the songs to find
+   * Returns: the songs corresponding to the specified ids
+   */
+  filter: function (ids) {
+    var songs = this.songs.filter(function (item) {
+      return _.inArray(item.id, ids);
+    });
+    return songs;
   },
   /**
    * Find the index of a song
@@ -24,7 +43,7 @@ module.exports = {
   findIndex: function (id) {
     var index = null;
     this.songs.forEach(function (item, key) {
-      if (item.id == id) {
+      if (item.id === id) {
         index = key;
       }
     });
@@ -42,7 +61,7 @@ module.exports = {
    * Param: song the song to save
    */
   save: function (song) {
-    if (song.id == null || song.id == 0) {
+    if (song.id === null || song.id === 0) {
       song.id = this.nextId;
       this.songs.push(song);
       this.nextId++;
@@ -58,8 +77,10 @@ module.exports = {
    */
   remove: function (id) {
     var index = this.findIndex(id);
-    if (index === null) return false;
+    if (index === null) {
+      return false;
+    }
     this.songs.splice(index, 1);
     return true;
   }
-}
+};

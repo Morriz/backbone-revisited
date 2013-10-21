@@ -3,7 +3,7 @@ ONCLIENT = !ONSERVER;
 console.log(layout);
 $ = jQuery = cheerio.load(layout);
 
-var Backbone = require(ROOT + 'backbone-modified')
+var Backbone = require(ROOT + 'backbone/backbone-modified')
   , myapp = require(ROOT + 'app')
   ;
 // modify the Backbone sync method to use redis

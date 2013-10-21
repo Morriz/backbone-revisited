@@ -1,19 +1,19 @@
-var Backbone = require('../backbone-modified');
+'use strict';
+var Backbone = require('../backbone/backbone-modified');
 
-module.exports = Backbone.LiveModel.extend({
+module.exports = Backbone.AnywhereModel.extend({
 
   type: 'tracks',
 
   // Default attributes for the track.
   defaults: {
     id: null,
-    title: "empty title...",
+    title: '',
     author: 'john doe',
     source: '/sample.aac',
     published: false,
     authorId: 1,
-    groupId: null,
-    songId: null
+    groupId: 1
   },
 
   initialize: function () {
@@ -25,11 +25,13 @@ module.exports = Backbone.LiveModel.extend({
   // Toggle the `published` state of this track.
   toggle: function () {
     this.save({
-      published: !this.get("published")
+      published: !this.get('published')
     });
   },
 
   _removeView: function () {
-    if (this.view && !this.view.removing) this.view.remove(false);
+    if (this.view && !this.view.removing) {
+      this.view.remove(false);
+    }
   }
 });

@@ -1,8 +1,9 @@
-var _ = require('underscore');
-//var $ = require('jquery');
-var Backbone = require('../backbone-modified');
-var template = require('../templates/tracklist.ejs');
-var tracklistStatsTemplate = require('../templates/tracklistStats.ejs');
+'use strict';
+var _ = require('underscore')
+  , Backbone = require('../backbone/backbone-modified')
+  , template = require('../templates/tracklist.ejs')
+  , tracklistStatsTemplate = require('../templates/tracklistStats.ejs')
+  ;
 
 module.exports = Backbone.AnywhereView.extend({
 
@@ -21,10 +22,8 @@ module.exports = Backbone.AnywhereView.extend({
 
   // At initialization we bind to the relevant events on the TrackList
   // collection, when items are added or changed. Kick things off by
-  // loading any preexisting trackCollection that might be saved in *localStorage*.
+  // loading any preexisting trackCollection that might be saved.
   initialize: function () {
-    // render our top level node
-    this.$el.html(this.template(this.collection.toJSON()));
     // setup our input
     this.input = this.$('.track-new');
     // attach handlers
@@ -33,8 +32,6 @@ module.exports = Backbone.AnywhereView.extend({
     }, this);
     this.listenTo(this.collection, 'reset', this.addAll);
     this.listenTo(this.collection, 'all', this.render);
-//        this.collection.fetch();
-//    this.trigger('attach');
   },
 
   // Re-rendering the App just means refreshing the statistics -- the rest
@@ -53,7 +50,9 @@ module.exports = Backbone.AnywhereView.extend({
   // appending its element to the <ul>.
   addOne: function (track, index) {
     // DIRRRTY: prevent too many items rendering
-    if (this.collection.limit && index == this.collection.limit[1]) return;
+    if (this.collection.limit && index === this.collection.limit[1]) {
+      return;
+    }
     var TrackListItemView = require('./TrackListItemView');
     var $el = new TrackListItemView({
       model: track
@@ -61,34 +60,33 @@ module.exports = Backbone.AnywhereView.extend({
     this.$('.tracklist').append($el);
   },
 
-  // Add all items in the **TrackList** collection at once.
+  // Add all items in the TrackList collection at once.
   addAll: function () {
     // clear trackCollection first
     this.$('.tracklist').html('');
-    this.collection.each(_.bind(this.addOne, this));
+    this.collection.each(this.addOne.bind(this));
   },
 
   // Generate the attributes for a new Track item.
   newAttributes: function () {
     return {
+      songId: this.collection.songId,
       title: this.input.val(),
       order: this.collection.nextOrder(),
       published: false
     };
   },
 
-  // If you hit return in the main input field, create new **Track** model,
-  // persisting it to *localStorage*.
+  // If you hit return in the main input field, create new Track model and persist.
   createOnEnter: function (e) {
-    if (e.keyCode != 13) return;
-    this.collection.create(this.newAttributes(), {
-//      wait: true,
-      success: this.collection.fetch
-    });
+    if (e.keyCode !== 13) {
+      return;
+    }
+    this.collection.create(this.newAttributes(), {wait: true});
     this.input.val('');
   },
 
-  // Destroy all published track models
+  // Destroy all published track models.
   clearCompleted: function () {
     _.each(this.collection.published(), function (track) {
       track.destroy();
@@ -102,8 +100,12 @@ module.exports = Backbone.AnywhereView.extend({
     var tooltip = this.$('.ui-tooltip-top');
     var val = this.input.val();
     tooltip.fadeOut();
-    if (this.tooltipTimeout) clearTimeout(this.tooltipTimeout);
-    if (val == '' || val == this.input.attr('placeholder')) return;
+    if (this.tooltipTimeout) {
+      clearTimeout(this.tooltipTimeout);
+    }
+    if (val === '' || val === this.input.attr('placeholder')) {
+      return;
+    }
     var show = function () {
       tooltip.show().fadeIn();
     };

@@ -6,15 +6,14 @@ var ejsify = require('ejsify')
 bundle
   .require('./public/js/clientonly.js', {entry: true})
   .ignore('jquery')
-  .require('./public/js/backbone', {expose: 'backbone'})
   .require('./public/js/app', {expose: 'app'})
   .transform(ejsify)
   .on('file', function (file, id, parent) {
-    console.log(file);
+    console.log(id + ': ' + file);
   })
   .bundle(function (err, src) {
       if (err) return console.error(err);
-      fs.writeFileSync(file, src);
       console.log('Build succeeded!');
+      fs.writeFileSync(file, src);
     })
 ;

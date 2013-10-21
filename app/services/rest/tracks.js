@@ -1,13 +1,26 @@
-var trackApi = require('../../api/tracks');
+'use strict';
+var _ = require('underscore')
+  , trackApi = require('../../api/tracks')
+  ;
 
 module.exports = function tracks(app) {
 
   /**
-   * HTTP GET /tracks
+   * HTTP GET /tracks/
    * Returns: the list of tracks in JSON format
    */
-  app.get('/tracks', function (req, res) {
+  app.get('/tracks/', function (req, res) {
     res.json(trackApi.findAll());
+  });
+  /**
+   * HTTP GET /tracks/:ids
+   * Returns: the filtered set of tracks in JSON format
+   */
+  app.get('/tracks/set/:ids', function (req, res) {
+    var songs = trackApi.filter(_.map(req.params.ids.split(';'), function (item) {
+      return parseInt(item, 10);
+    }));
+    res.json(songs);
   });
   /**
    * HTTP GET /tracks/:id
@@ -16,7 +29,7 @@ module.exports = function tracks(app) {
    * Error: 404 HTTP code if the track doesn't exists
    */
   app.get('/tracks/:id', function (req, res) {
-    var id = req.params.id
+    var id = parseInt(req.params.id, 10)
       , track = trackApi.find(id)
       ;
     if (track) {
@@ -29,15 +42,8 @@ module.exports = function tracks(app) {
    * Body Param: the JSON track you want to create
    * Returns: 200 HTTP code
    */
-  app.post('/tracks', function (req, res) {
-    var track = req.body
-      , track = trackApi.save({
-        title: track.title || 'Default title',
-        description: track.description || 'Default description',
-        dueDate: track.dueDate,
-        status: track.status || 'not completed'
-      })
-      ;
+  app.post('/tracks/', function (req, res) {
+    var track = trackApi.save(req.body);
     res.json(track);
   });
   /**
@@ -47,22 +53,13 @@ module.exports = function tracks(app) {
    * Returns: 200 HTTP code
    * Error: 404 HTTP code if the track doesn't exists
    */
-  app.put('/tracks:/id', function (req, res) {
-    var track = req.body;
-    var id = req.params.id;
-    var persistedTrack = trackApi.find(id);
-    if (!persistedTrack) {
+  app.put('/tracks/:id', function (req, res) {
+    var id = parseInt(req.params.id, 10);
+    if (!trackApi.find(id)) {
       res.send(404);
     }
-    trackApi.save({
-      id: persistedTrack.id,
-      title: track.title || persistedTrack.title,
-      description: track.description || persistedTrack.description,
-      dueDate: track.dueDate || persistedTrack.dueDate,
-      status: track.status || persistedTrack.status
-    });
+    trackApi.save(req.body);
     res.send(200);
-
   });
   /**
    * HTTP PUT /tracks/
@@ -72,9 +69,10 @@ module.exports = function tracks(app) {
    * Error: 404 HTTP code if the track doesn't exists
    */
   app.delete('/tracks/:id', function (req, res) {
-    if (trackApi.remove(req.params.id)) {
+    var id = parseInt(req.params.id, 10);
+    if (trackApi.remove(id)) {
       return res.send(200);
     }
     res.send(404);
   });
-}
+};

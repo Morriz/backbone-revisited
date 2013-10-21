@@ -1,7 +1,9 @@
-var _ = require('underscore');
-var views = require('../views/index');
-var models = require('../models/index');
-var Backbone = require('../backbone-modified');
+'use strict';
+var _ = require('underscore')
+  , views = require('../views/index')
+  , models = require('../models/index')
+  , Backbone = require('../backbone/backbone-modified')
+  ;
 
 module.exports = Backbone.Router.extend({
 
@@ -40,18 +42,15 @@ module.exports = Backbone.Router.extend({
 
     var viewCallback;
 
-    // did we come from our list view?
+    id = parseInt(id, 10);
+
     if (!this.trackView) {
       // create model and view
-      this.trackView = new views.Track({
-        model: new models.Track({
-          id: id
-        })
-      });
+      this.trackView = new views.Track({model: new models.Track({id: id})});
     } else {
       this.trackView.model.set('id', id);
     }
-    // get from server first
+    // get the data
     viewCallback = Backbone.createViewCallback(this.trackView);
     this.trackView.model.fetch({
       success: viewCallback,
