@@ -39,9 +39,9 @@ Cheerio was used for html selecting and parsing on the server. JSdom got the boo
 
 I added a rest server with in memory storage, that fits the out-of-the-box Backbone sync method.
 
-Href clicks are hijacked and mapped onto the instantiated Backbone routers, using pushState to reflect the app state in the url.
+On the client href clicks within Views are hijacked and handled by the instantiated Backbone routers, using pushState to reflect the app state in the url.
 
-The client has access to all scripts by means of 'require', including templates, which were packaged with browserify. I have also uglified and minified the bundle.js, but not include tools to do so. Please find info on the web.
+The client has access to all scripts by means of 'require', including templates, which were packaged with browserify. I have also uglified and minified the bundle.js, but not included tools to do so. Please find info on the web.
 
 ## Usage
 
@@ -53,7 +53,7 @@ And start the server:
     
 Then open this link in your browser:
 
-    http://localhost:8000
+    http://127.0.0.1:8000
 
 ## Some notes
 
@@ -61,12 +61,15 @@ Then open this link in your browser:
 
 But the hacking was very minimal this time.
 
-jQuery was made global on the server, and loaded from cdn on the client.
+To give each connecting user the freshly loaded code that the session needs, I used node.js' vm module, and created a sandbox to prevent the session from touching the global state I wanted to keep.
 
-I added " … || $" to the "Backbone.$ = … " line (line 46) to make cheerio's $ available on the server.
-(Again, I added node_modules/backbone to git to make it work out of the box.)
+$ was made global on the server (cheerio), and loaded from cdn on the client.
 
-Also, to give each connecting user the freshly loaded code that the session needs, I used node.js' vm module, and created a sandbox to prevent the session from touching the global statefullness I wanted to keep.
+I injected (global || window) into Backbone to make it work on both environments.
+
+This version of ejs.js was copied over to make compiling work (I didn't want to create a fork):
+    
+    https://github.com/visionmedia/ejs/blob/82f6d373dac280c0984c903ac6735483ad905afb/lib/ejs.js
 
 ### Server rendering is a bit slow
 
@@ -74,18 +77,8 @@ The sandboxed execution on the server creates a new context for each request, wh
 
 Nevertheless, I got 45 reqs p/s on my old core 2 duo macbook pro, with 100 simultaneous requests. Mind you, this is without caching.
 
-Actually, it's pretty fast for an initial page load now that I think of it.
+Actually, it's pretty fast for an initial page load now that I think of it. 
 
 ### Memory leaks
 
 Maybe because I used vm, which is noted 'unstable', every request leaks some memory. It's probably my own fault tho. I hacked this version over the weekend and got tired. When I have the time to look into this I hope to fix it.
-
-### The EJS module in npm has a bug
-
-I had to copy this version of ejs.js over the one in node_modules/ejs/lib to make it work:
-    
-    https://github.com/visionmedia/ejs/blob/82f6d373dac280c0984c903ac6735483ad905afb/lib/ejs.js
-    
-(Too bad TJ didn't bother to publish it back to npm)
-
-Because I wanted this setup to work out of the box I dirtily added node_modules/ejs to git :p
