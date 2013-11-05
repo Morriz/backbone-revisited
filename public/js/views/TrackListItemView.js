@@ -31,7 +31,6 @@ module.exports = Backbone.AnywhereView.extend({
 
   // Render the contents of the track item.
   render: function () {
-    global.ONCLIENT && this.input.off('blur');
     this.$el.html(this.template(this.model.toJSON()));
     this._enrich();
     return this;
@@ -41,7 +40,7 @@ module.exports = Backbone.AnywhereView.extend({
     if (global.ONSERVER) {
       return;
     }
-    this.input = this.$('.track-input').on('blur', this.close.bind(this));
+    this.input = this.$('.track-input').on('blur', _.bind(this.close, this));
   },
 
   // Toggle the 'published' state of the model.

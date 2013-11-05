@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# just rewrite the last line in backbone.js to make it use node.js' global else window as 'this'
+# just rewrite the last line in backbone.js to make it use node.js' global as 'this'
 
 sed 's/}).call(this);/}).call(global || window);/g' node_modules/backbone/backbone.js > bb.js
 mv bb.js node_modules/backbone/backbone.js

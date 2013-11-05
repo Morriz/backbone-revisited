@@ -3,14 +3,14 @@ var _ = require('underscore')
   , renderEngine = require('ejs')
   , Backbone = require('backbone')
   ;
-// set globals because the authors never intended their stuff to be used with require on the client
+
 if (global.ONCLIENT) {
+  // set globals because the authors never intended their stuff to be used with require on the client
   global._ = _;
   global.Backbone = Backbone;
-};
-
-// pull in the href listeners to enable handling of link clicking
-global.ONCLIENT && (require('./backbone-urlhandler'));
+  // pull in the href listeners to enable handling of link clicking
+  require('./backbone-urlhandler');
+}
 
 Backbone.AnywhereModel = Backbone.Model.extend({
 

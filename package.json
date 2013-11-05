@@ -1,7 +1,7 @@
 {
   "name": "backbone-revisited",
   "description": "Persistant backbone server/client MVC with rest backend",
-  "version": "0.1.1",
+  "version": "0.1.3",
   "homepage": "https://github.com/morriz/backbone-revisited",
   "repository": {
     "type": "git",
